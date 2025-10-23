@@ -57,3 +57,8 @@ icpx -O3 -w -fopenmp -std=c++17 -march=native -mtune=native \
     -Isrc/pirs/SFMT-src-1.4 \
     -o bin/pirs \
     src/pirs/*.cpp src/pirs/SFMT-src-1.4/SFMT.c
+
+icx -O3 -w -std=c11 -march=native -mtune=native \
+    -lz -lpthread $(pkgconf --cflags --libs mkl-sdl) \
+    -o bin/generate_large_contigs \
+    generate_large_contigs.c

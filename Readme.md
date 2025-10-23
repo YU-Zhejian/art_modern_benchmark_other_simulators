@@ -18,6 +18,8 @@ Use `run-*.sh` to run benchmark.
 
 1. Reference genome of _C. Elegans_ with 10X coverage.
 2. Long mRNAs of humans that exceed 500 nucleotides with 4X coverage.
+3. Large contig dataset: Simulated genome with 4 contigs, each containing 32 G bases.
+4. Large mRNAs dataset: Simulated genome with 32 G contigs, each containing 500 K bases.
 
 The simulators were asked to generate a FASTQ on both datasets with paired-end reads lengthen 100bp.
 
