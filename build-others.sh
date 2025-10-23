@@ -4,7 +4,7 @@
 
 set +ue
 . /opt/intel/oneapi/setvars.sh
-set -ue
+set -uex
 
 # Build HTSLib
 env -C src/htslib-1.21 \

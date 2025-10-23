@@ -1,9 +1,10 @@
 #include <mkl.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
-int main (void){
+int main(void)
+{
     const char* FILE_NAME = "large_contigs.fasta";
     // Initialize MKL Random Number Generator
     VSLStreamStatePtr stream;
@@ -30,7 +31,7 @@ int main (void){
         // That is, 64 chars per line for 512 M lines.
         for (size_t j = 0; j < CONTIG_SIZE / LINE_LEN; j++) {
             for (int k = 0; k < LINE_LEN; k++) {
-                if(rand_offset == 0){
+                if (rand_offset == 0) {
                     // Refill random number cache
                     viRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, NUM_RAND_NUMBER_CACHE, rand_nums, 0, 5);
                     rand_offset = NUM_RAND_NUMBER_CACHE;
