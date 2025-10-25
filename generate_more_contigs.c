@@ -5,8 +5,9 @@
 
 int main(void)
 {
-    const char* FILE_NAME = "large_contigs.fasta";
+    const char* FILE_NAME = "more_contigs.fasta";
     // Initialize MKL Random Number Generator
+    // SFMT19937 have a cycle length of 2^19937-1, should be enough for our use
     VSLStreamStatePtr stream;
     vslNewStream(&stream, VSL_BRNG_SFMT19937, 0x12345678);
 
@@ -16,9 +17,9 @@ int main(void)
         return 1;
     }
     const size_t NUM_RAND_NUMBER_CACHE = 1024 * 1024;
-    const size_t CONTIG_SIZE = 32ULL * 1024 * 1024 * 1024;
-    const size_t NUM_CONTIGS = 4;
-    const size_t LINE_LEN = 64;
+    const size_t CONTIG_SIZE = 512ULL;
+    const size_t NUM_CONTIGS = 32ULL * 1024 * 1024 * 1024;
+    const size_t LINE_LEN = CONTIG_SIZE;
     // Generate 1M random numbers for later use
     int* rand_nums = (int*)calloc((NUM_RAND_NUMBER_CACHE), sizeof(int));
     size_t rand_offset = 0;
@@ -26,9 +27,7 @@ int main(void)
     char line[LINE_LEN + 1];
     line[LINE_LEN] = '\0';
     for (size_t i = 0; i < NUM_CONTIGS; i++) {
-        fprintf(fp, ">contig%d\n", i);
-        // Generate 32 GiB ATCGN sequence
-        // That is, 64 chars per line for 512 M lines.
+        fprintf(fp, ">contig%x\n", i);
         for (size_t j = 0; j < CONTIG_SIZE / LINE_LEN; j++) {
             for (int k = 0; k < LINE_LEN; k++) {
                 if (rand_offset == 0) {
