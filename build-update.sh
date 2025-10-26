@@ -9,7 +9,6 @@ set -ue
 rm -fr src/art_modern/
 env -C src git clone https://github.com/YU-Zhejian/art_modern.git -b devel
 
-
 rm -fr opt/art_modern_build/
 mkdir -p opt/art_modern_build/
 env -C opt/art_modern_build/ cmake \

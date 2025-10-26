@@ -34,10 +34,6 @@ The simulators were asked to generate a FASTQ on both datasets with paired-end r
 - **OS** Linux Mint 22
 - **KERNEL** Linux 6.8.0-86-generic
 
-## TODO
-
-Replace all "magic numbers" with exported variables.
-
 ## Used Third-Party Codes
 
 ### SAMtools 1.21 Release Tarball
