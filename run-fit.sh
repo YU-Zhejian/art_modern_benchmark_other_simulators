@@ -23,8 +23,20 @@ mv data/soybean_SRR16074289_?.fastq.gz data/soybean_HiSeq2500/
 bash ../../deps/ART_profiler_illumina/art_profiler_illumina \
     data/e_coli_HiSeq2K_art_ data/e_coli_HiSeq2K fastq.gz
 
-bash ../../deps/ART_profiler_illumina/art_profiler_illumina \
-    data/soybean_HiSeq2500_art_ data/soybean_HiSeq2500 fastq.gz
+for i in 1 2; do
+    art_profile_builder \
+        --i-file data/e_coli_HiSeq2K/e_coli_CNR0028307_p33_"${i}".fastq.gz \
+        --read_len 100 \
+        --o-file1 data/e_coli_HiSeq2K_art_R"${i}".txt \
+        --parallel 4 \
+        --i-num_threads 4
+    art_profile_builder \
+        --i-file data/soybean_HiSeq2500/soybean_SRR16074289_"${i}".fastq.gz \
+        --read_len 300 \
+        --o-file1 data/soybean_HiSeq2500_art_R"${i}".txt \
+        --parallel 4 \
+        --i-num_threads 4
+done
 
 bwa index data/e_coli.fa
 bwa index data/soybean.fa

@@ -5,6 +5,11 @@
 set +ue
 . /opt/intel/oneapi/setvars.sh
 set -ue
+
+rm -fr src/art_modern/
+env -C src git clone https://github.com/YU-Zhejian/art_modern.git -b devel
+
+
 rm -fr opt/art_modern_build/
 mkdir -p opt/art_modern_build/
 env -C opt/art_modern_build/ cmake \
@@ -18,7 +23,7 @@ env -C opt/art_modern_build/ cmake \
     -DUSE_HTSLIB=hts \
     -DCMAKE_PREFIX_PATH="$(pwd)"/opt \
     -DC_INCLUDE_PATH="$(pwd)"/opt/include \
-    -G Ninja "$(pwd)"/../../
+    -G Ninja "$(pwd)"/src/art_modern
 env -C opt/art_modern_build/ ninja
 
 rm -fr opt/art_modern_gcc_build/
@@ -31,5 +36,5 @@ env -C opt/art_modern_gcc_build/ cmake \
     -DUSE_THREAD_PARALLEL=BS \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DUSE_RANDOM_GENERATOR=STL \
-    -G Ninja "$(pwd)"/../../
+    -G Ninja "$(pwd)"/src/art_modern
 env -C opt/art_modern_gcc_build/ ninja

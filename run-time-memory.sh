@@ -7,6 +7,8 @@ set -ue
 
 export OUT_DIR=/tmp/data_out
 export ART_MODERN_THREADS=20
+export LD_LIBRARY_PATH="$(pwd)"/opt/lib:"${LD_LIBRARY_PATH:-}"
+export LD_RUN_PATH="$(pwd)"/opt/lib:"${LD_RUN_PATH:-}"
 
 mkdir -p "${OUT_DIR}"
 
@@ -21,7 +23,7 @@ printf 'TEST_CASE\tWALL_CLOCK\tSYSTEM\tUSER\tRSS\tMAJ_PG_F\tMIN_PG_F\tVOL_CTX_S\
 for i in {1..3}; do
     echo "Run ${i}"
 
-    run pirs-genome-pe100 bin/pirs simulate -A dist -m 500 -l 100 -x 10 -v 20 -t 20 \
+    run pirs-genome-pe100 bin/pirs simulate -A dist -m 500 -l 100 -x 10 -v 20 -t "${ART_MODERN_THREADS}" \
         -B data/e_coli_HiSeq2K_pirs_bcm.count.matrix \
         -I data/e_coli_HiSeq2K_pirs_indelstat.InDel.matrix \
         --no-gc-bias \
@@ -53,7 +55,7 @@ for i in {1..3}; do
         --qual_file_2 data/e_coli_HiSeq2K_art_R2.txt \
         --pe_frag_dist_mean 500 --pe_frag_dist_std_dev 20 --parallel "${ART_MODERN_THREADS}"
 
-    #    run pirs-transcriptome-pe100 bin/pirs simulate -A dist -m 500 -l 100 -x 4 -v 20 -t 20 \
+    #    run pirs-transcriptome-pe100 bin/pirs simulate -A dist -m 500 -l 100 -x 4 -v 20 -t "${ART_MODERN_THREADS}" \
     #        -B data/e_coli_HiSeq2K_pirs_bcm.count.matrix \
     #        -I data/e_coli_HiSeq2K_pirs_indelstat.InDel.matrix \
     #        --no-gc-bias \
@@ -88,7 +90,7 @@ for i in {1..3}; do
 
     # Now run the same tests with PE300 coverage
 
-    run pirs-genome-pe300 bin/pirs simulate -A dist -m 500 -l 300 -x 10 -v 20 -t 20 \
+    run pirs-genome-pe300 bin/pirs simulate -A dist -m 500 -l 300 -x 10 -v 20 -t "${ART_MODERN_THREADS}" \
         -B data/soybean_HiSeq2500_pirs_bcm.count.matrix \
         -I data/soybean_HiSeq2500_pirs_indelstat.InDel.matrix \
         --no-gc-bias \
@@ -120,7 +122,7 @@ for i in {1..3}; do
         --qual_file_2 data/soybean_HiSeq2500_art_R2.txt \
         --pe_frag_dist_mean 500 --pe_frag_dist_std_dev 20 --parallel "${ART_MODERN_THREADS}"
 
-    #    run pirs-transcriptome-pe300 bin/pirs simulate -A dist -m 500 -l 300 -x 4 -v 20 -t 20 \
+    #    run pirs-transcriptome-pe300 bin/pirs simulate -A dist -m 500 -l 300 -x 4 -v 20 -t "${ART_MODERN_THREADS}" \
     #        -B data/soybean_HiSeq2500_pirs_bcm.count.matrix \
     #        -I data/soybean_HiSeq2500_pirs_indelstat.InDel.matrix \
     #        --no-gc-bias \

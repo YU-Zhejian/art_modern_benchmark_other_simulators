@@ -4,11 +4,13 @@
 # shellcheck disable=SC2155
 set +ue
 . /opt/intel/oneapi/setvars.sh
-set -ue
+set -uex
 
 export OUT_DIR="$(pwd)"/data_out/fastqc
 export FCOV=3
 export REF="$(pwd)/data/yeast.fa"
+export LD_LIBRARY_PATH="$(pwd)"/opt/lib:"${LD_LIBRARY_PATH}"
+export LD_RUN_PATH="$(pwd)"/opt/lib:"${LD_RUN_PATH}"
 
 rm -fr "${OUT_DIR}"
 mkdir -p "${OUT_DIR}"

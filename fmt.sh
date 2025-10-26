@@ -50,7 +50,7 @@ wait
 which cmake-format &>/dev/null &&
     git ls-files |
     grep -v '.idea/' |
-    grep -v 'src' |
+        grep -v 'src' |
         grep -e '\.cmake$' -e 'CMakeLists.txt' |
         while read -r line; do
             if [ -e "${line}" ]; then

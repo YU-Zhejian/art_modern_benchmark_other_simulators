@@ -32,11 +32,11 @@ The simulators were asked to generate a FASTQ on both datasets with paired-end r
 - **MEM** 2 * 16GB Hynix/Hyundai 5600MHz No-ECC (HMCG78AGBSA095N)
 - **SSD** WD_BLACK SN750 NVMe SSD (WDS200T3X0C-00SJG0)
 - **OS** Linux Mint 22
-- **KERNEL** Linux 6.8.0-79-generic
+- **KERNEL** Linux 6.8.0-86-generic
 
 ## TODO
 
-The old ART profiles should be re-created using new ART profile creator.
+Replace all "magic numbers" with exported variables.
 
 ## Used Third-Party Codes
 
