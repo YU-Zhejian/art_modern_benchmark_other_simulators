@@ -114,7 +114,7 @@ for i in {1..3}; do
         --noALN \
         --paired
 
-    run art_original-transcriptome-pe100 bin/art_original \
+    run art_original-transcriptome-pe"${RLEN}" bin/art_original \
         --in data/hg38_long_mrna.fa \
         --out "${OUT_DIR}"/hg38_long_mrna_art_ \
         --qprof1 "${ART_MTX_PREFIX}"_R1.txt \

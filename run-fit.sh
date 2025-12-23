@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2317
+# shellcheck disable=SC1091
+# shellcheck disable=SC2155
 set -ue
 
 curl -o data/cngb_aspera_download.key -s ftp://ftp.cngb.org/pub/Tool/Aspera/aspera_download.key
@@ -15,26 +18,26 @@ for i in 1 2; do
     wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR160/089/SRR16074289/SRR16074289_"${i}".fastq.gz \
         -O data/soybean_SRR16074289_"${i}".fastq.gz
 done
+set +ue
+. /opt/intel/oneapi/setvars.sh
+set -ue
 
 mkdir -p data/e_coli_HiSeq2K data/soybean_HiSeq2500
 mv data/e_coli_CNR0028307_p33_?.fastq.gz data/e_coli_HiSeq2K/
 mv data/soybean_SRR16074289_?.fastq.gz data/soybean_HiSeq2500/
 
-bash ../../deps/ART_profiler_illumina/art_profiler_illumina \
-    data/e_coli_HiSeq2K_art_ data/e_coli_HiSeq2K fastq.gz
-
 for i in 1 2; do
-    art_profile_builder \
+    opt/art_modern_build/art_profile_builder \
         --i-file data/e_coli_HiSeq2K/e_coli_CNR0028307_p33_"${i}".fastq.gz \
         --read_len 100 \
         --o-file1 data/e_coli_HiSeq2K_art_R"${i}".txt \
-        --parallel 4 \
+        --parallel 6 \
         --i-num_threads 4
-    art_profile_builder \
+    opt/art_modern_build/art_profile_builder \
         --i-file data/soybean_HiSeq2500/soybean_SRR16074289_"${i}".fastq.gz \
         --read_len 300 \
         --o-file1 data/soybean_HiSeq2500_art_R"${i}".txt \
-        --parallel 4 \
+        --parallel 6 \
         --i-num_threads 4
 done
 
