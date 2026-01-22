@@ -77,34 +77,7 @@ p <- df %>%
   facet_grid(DATA ~ ASPECTS, scales = "free") +
   theme_bw() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-ggsave("fig/time_memory.pdf", p, width = 20, height = 4)
+ggsave("fig/time_memory.pdf", p, width = 10, height = 4)
 
-p <- df %>%
-  dplyr::select(MAJ_PG_F, MIN_PG_F, VOL_CTX_S, IV_CTX_S, DATA, SOFTWARE, RLEN) %>%
-  tidyr::pivot_longer(
-    cols = c("MAJ_PG_F", "MIN_PG_F", "VOL_CTX_S", "IV_CTX_S"),
-    names_to = "PFCS_TYPE",
-    values_to = "PFCS"
-  ) %>%
-  dplyr::mutate(
-    PFCS_TYPE = sapply(PFCS_TYPE, function(x)
-      replacement_list[[x]]),
-    SOFTWARE = sapply(SOFTWARE, function(x)
-      replacement_list[[x]])
-  ) %>%
-  ggplot() +
-  geom_boxplot(aes(
-    y = factor(
-      SOFTWARE,
-      levels = levels
-    ),
-    x = PFCS,
-    fill = RLEN,
-    color = RLEN
-  )) +
-  scale_x_continuous(trans = "log10", labels = scales::label_number()) +
-  facet_grid(DATA ~ PFCS_TYPE, scales = "free") +
-  theme_bw()
-ggsave("fig/page_faults.pdf", p, width = 20, height = 4)
 
 sessionInfo()
