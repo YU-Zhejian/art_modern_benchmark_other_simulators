@@ -1,5 +1,6 @@
 library(ggplot2)
 library(dplyr)
+
 df <- readr::read_tsv("time.tsv") %>%
   dplyr::mutate(CPU_TIME = SYSTEM + USER) %>%
   dplyr::mutate(
@@ -9,13 +10,18 @@ df <- readr::read_tsv("time.tsv") %>%
       "TRANSCRIPTOME"
     ),
     SOFTWARE = stringr::str_extract(TEST_CASE, "^[^-]+"),
-    RLEN = ifelse(stringr::str_count(TEST_CASE, "300") != 0, "300", "100")
+    RLEN = ifelse(stringr::str_count(TEST_CASE, "300") != 0, "300", "100"),
+    COVERAGE = stringr::str_extract(TEST_CASE, "cov([0-9]+)", group = 1)
   )
 
 df_2 <- df %>%
   dplyr::filter(SOFTWARE %in% c("art_original", "art_modern")) %>%
   dplyr::select(WALL_CLOCK, SOFTWARE, RLEN, DATA) %>%
-  tidyr::pivot_wider(names_from=SOFTWARE, values_from=WALL_CLOCK, values_fn =mean)
+  tidyr::pivot_wider(
+    names_from = SOFTWARE,
+    values_from = WALL_CLOCK,
+    values_fn = mean
+  )
 
 
 replacement_list <- list(
@@ -30,54 +36,94 @@ replacement_list <- list(
   "dwgsim" = "DWGSIM",
   "wgsim" = "wgsim",
   "art_original" = "Original ART",
-  "art_modern" = "art_modern (HEAD)",
-  "art_modern_prev_ver" = "art_modern (master)",
+  "art_modern" = "art_modern (master)",
+  "art_modern_prev_ver" = "art_modern (prev)",
   "art_modern_gcc" = "art_modern (GCC)",
-  "art_modern_jemalloc" = "art_modern (HEAD/jemalloc)",
-  "art_modern_asio" = "art_modern (HEAD/ASIO)",
-  "art_modern_stlmap" = "art_modern (HEAD/STLMAP)",
-  "art_modern_mimalloc" = "art_modern (HEAD/mi-malloc)"
+  "art_modern_jemalloc" = "art_modern (master/jemalloc)",
+  "art_modern_asio" = "art_modern (master/ASIO)",
+  "art_modern_stlmap" = "art_modern (master/STLMAP)",
+  "art_modern_mimalloc" = "art_modern (master/mi-malloc)"
 )
-levels <- c("wgsim", "DWGSIM", "pIRS", "art_modern (HEAD)", "art_modern (master)", "art_modern (GCC)", "art_modern (HEAD/jemalloc)","art_modern (HEAD/mi-malloc)","art_modern (HEAD/ASIO)", "art_modern (HEAD/STLMAP)", "Original ART")
-p <- df %>%
-  dplyr::select(CPU_TIME, WALL_CLOCK, RSS, DATA, SOFTWARE, RLEN) %>%
+levels <- c(
+  "wgsim",
+  "DWGSIM",
+  "pIRS",
+  "art_modern (master)",
+  "art_modern (prev)",
+  "art_modern (GCC)",
+  "art_modern (master/jemalloc)",
+  "art_modern (master/mi-malloc)",
+  "art_modern (master/ASIO)",
+  "art_modern (master/STLMAP)",
+  "Original ART"
+)
+df_p <- df %>%
+  dplyr::select(CPU_TIME, WALL_CLOCK, RSS, DATA, SOFTWARE, RLEN, COVERAGE) %>%
   dplyr::mutate(RSS = RSS / 1024) %>%
   tidyr::pivot_longer(
     cols = c("CPU_TIME", "WALL_CLOCK", "RSS"),
     names_to = "ASPECTS",
     values_to = "VALUES"
   ) %>%
-  dplyr::filter(!(SOFTWARE=="pirs" & DATA == "TRANSCRIPTOME" & ASPECTS=="CPU_TIME")) %>%
-  dplyr::mutate(
-    ASPECTS = sapply(ASPECTS, function(x)
-      replacement_list[[x]]),
-    SOFTWARE = sapply(SOFTWARE, function(x)
-      replacement_list[[x]])
+  dplyr::filter(
+    !(SOFTWARE == "pirs" & DATA == "TRANSCRIPTOME" & ASPECTS == "CPU_TIME")
   ) %>%
-  ggplot() +
-  geom_boxplot(aes(
-    y = factor(
-      SOFTWARE,
-      levels = levels
-    ),
-    x = VALUES,
-    fill = RLEN,
-    color = RLEN
-  )) +
-  scale_x_continuous(
-    labels = scales::label_number(scale_cut = scales::cut_si("")),
-    breaks = scales::breaks_pretty(n = 5),
-    limits = c(0, NA)
-  ) +
-  scale_y_discrete(
-    "Software"
-  ) +
-  scale_fill_discrete("Read length") +
-  scale_color_discrete("Read length") +
-  facet_grid(DATA ~ ASPECTS, scales = "free") +
-  theme_bw() +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-ggsave("fig/time_memory.pdf", p, width = 10, height = 4)
+  dplyr::mutate(
+    ASPECTS = sapply(ASPECTS, function(x) {
+      replacement_list[[x]]
+    }),
+    SOFTWARE = sapply(SOFTWARE, function(x) {
+      replacement_list[[x]]
+    })
+  ) %>%
+  dplyr::group_by(ASPECTS, DATA, SOFTWARE, COVERAGE, RLEN) %>%
+  dplyr::summarise(VALUES_MEAN = mean(VALUES), VALUES_SD = sd(VALUES)) %>%
+  dplyr::ungroup()
 
+for (rlen in c("100", "300")) {
+  p <- df_p %>%
+    dplyr::filter(RLEN == rlen) %>%
+    ggplot() +
+    geom_line(aes(
+      y = VALUES_MEAN,
+      x = factor(COVERAGE, levels = c("1", "2", "4", "8", "16", "32")),
+      color = factor(
+        SOFTWARE,
+        levels = levels
+      ),
+      group = SOFTWARE
+    )) +
+    geom_errorbar(
+      aes(
+        ymin = VALUES_MEAN - VALUES_SD,
+        ymax = VALUES_MEAN + VALUES_SD,
+        x = factor(COVERAGE, levels = c("1", "2", "4", "8", "16", "32")),
+        color = factor(
+          SOFTWARE,
+          levels = levels
+        ),
+        group = SOFTWARE
+      ),
+      width = .2
+    ) +
+    scale_x_discrete(
+      "Coverage"
+    ) +
+    scale_y_continuous(
+      trans = "log10",
+      # labels = scales::label_number(scale_cut = scales::cut_si("")),
+      # breaks = scales::breaks_pretty(n = 5),
+      limits = c(0.1, NA)
+    ) +
+    scale_fill_discrete("Read length") +
+    scale_color_discrete("Software") +
+    facet_grid(ASPECTS ~ DATA, scales = "free_y") +
+    theme_bw() +
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank()
+    )
+  ggsave(paste0("fig/time_memory_", rlen, ".pdf"), p, width = 10, height = 10)
+}
 
 sessionInfo()

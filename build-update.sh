@@ -7,7 +7,7 @@ set +ue
 set -ue
 
 rm -fr src/art_modern/
-env -C src git clone https://github.com/YU-Zhejian/art_modern.git -b devel
+env -C src git clone https://github.com/YU-Zhejian/art_modern.git -b master --depth 1
 
 rm -fr opt/art_modern_build/
 mkdir -p opt/art_modern_build/
@@ -33,7 +33,7 @@ env -C opt/art_modern_gcc_build/ cmake \
     -DCEU_CM_SHOULD_USE_NATIVE=ON \
     -DCEU_CM_SHOULD_ENABLE_TEST=OFF \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-    -DUSE_RANDOM_GENERATOR=STL \
+    -DUSE_RANDOM_GENERATOR=PCG \
     -DUSE_MALLOC=NOP \
     -G Ninja "$(pwd)"/src/art_modern
 env -C opt/art_modern_gcc_build/ ninja

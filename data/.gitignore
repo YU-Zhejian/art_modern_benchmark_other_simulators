@@ -1,2 +1,4 @@
 *
 !.gitignore
+!*_art_R?.txt
+!*_bcm.*
