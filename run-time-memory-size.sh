@@ -1,16 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2317
 # shellcheck disable=SC1091
-set +ue
-. /opt/intel/oneapi/setvars.sh
 set -ue
-
-export OUT_DIR=/tmp/data_out
-export ART_MODERN_THREADS=6
-export LD_LIBRARY_PATH="$(pwd)"/opt/lib:"${LD_LIBRARY_PATH:-}"
-export LD_RUN_PATH="$(pwd)"/opt/lib:"${LD_RUN_PATH:-}"
-FRAG_DIST_MEAN=500
-FRAG_DIST_STD_DEV=20
+. run-functions.sh
 
 WGS_FCOV=4
 TRANSCRIPTOME_FCOV=4
@@ -18,29 +10,7 @@ GENOME_SIZES=("1048576" "4194304" "16777216" "67108864" "268435456")
 TRANSCRIPTOME_SIZES=("1024" "4096" "16384" "65536" "262144")
 TRANSCRIPT_LEN=1024
 
-mkdir -p "${OUT_DIR}"
 OUT_TSV="time-size.tsv"
-
-function run() {
-    echo "${1}" -- "${@:2}"
-    /bin/time \
-        -a \
-        -o "${OUT_TSV}" \
-        -f "${1}"'\t%e\t%S\t%U\t%M\t%F\t%R\t%w\t%c' \
-        "${@:2}" &>"${OUT_DIR}"/"${1}".log || return 1
-    rm -rf "${OUT_DIR:?}"/*
-    mkdir -p "${OUT_DIR}"
-}
-
-function export_on_adjusted_rlen() {
-    if [ "${RLEN}" -eq 100 ]; then
-        export PIRS_B="data/e_coli_HiSeq2K_pirs_bcm.count.matrix"
-        export ART_MTX_PREFIX="data/e_coli_HiSeq2K_art"
-    else
-        export PIRS_B="data/soybean_HiSeq2500_pirs_bcm.count.matrix"
-        export ART_MTX_PREFIX="data/soybean_HiSeq2500_art"
-    fi
-}
 
 for GENOME_SIZE in "${GENOME_SIZES[@]}"; do
     if [ ! -f "data/gen_genome_${GENOME_SIZE}bp.fa" ]; then
@@ -175,7 +145,6 @@ for i in {1..3}; do
                 --i-file data/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp.fa \
                 --i-fcov "${TRANSCRIPTOME_FCOV}" \
                 --read_len "${RLEN}" \
-                --i-parser stream \
                 --o-fastq "${OUT_DIR}"/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp_art_modern_wgs_memory.fastq \
                 --qual_file_1 "${ART_MTX_PREFIX}"_R1.txt \
                 --qual_file_2 "${ART_MTX_PREFIX}"_R2.txt \
@@ -187,7 +156,6 @@ for i in {1..3}; do
                 --i-file data/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp.fa \
                 --i-fcov "${TRANSCRIPTOME_FCOV}" \
                 --read_len "${RLEN}" \
-                --i-parser stream \
                 --o-fastq "${OUT_DIR}"/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp_art_modern_wgs_memory.fastq \
                 --qual_file_1 "${ART_MTX_PREFIX}"_R1.txt \
                 --qual_file_2 "${ART_MTX_PREFIX}"_R2.txt \
