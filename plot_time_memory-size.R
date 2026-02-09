@@ -1,7 +1,7 @@
 library(ggplot2)
 library(dplyr)
 
-df <- readr::read_tsv("time-genome-transcriptome.tsv") %>%
+df <- readr::read_tsv("time-size.tsv") %>%
   dplyr::mutate(CPU_TIME = SYSTEM + USER) %>%
   dplyr::mutate(
     DATA = ifelse(
@@ -30,26 +30,24 @@ replacement_list <- list(
   "dwgsim" = "DWGSIM",
   "wgsim" = "wgsim",
   "art_original" = "Original ART",
-  "art_modern" = "art_modern (master)",
-  "art_modern_prev_ver" = "art_modern (prev)",
-  "art_modern_gcc" = "art_modern (GCC)",
-  "art_modern_jemalloc" = "art_modern (master/jemalloc)",
-  "art_modern_asio" = "art_modern (master/ASIO)",
-  "art_modern_stlmap" = "art_modern (master/STLMAP)",
-  "art_modern_mimalloc" = "art_modern (master/mi-malloc)"
+  "art_modern" = "art_modern (Intel)",
+  "art_modern_gcc" = "art_modern (GCC)"
 )
 software_levels <- c(
   "wgsim",
   "DWGSIM",
   "pIRS",
-  "art_modern (master)",
-  "art_modern (prev)",
+  "art_modern (Intel)",
   "art_modern (GCC)",
-  "art_modern (master/jemalloc)",
-  "art_modern (master/mi-malloc)",
-  "art_modern (master/ASIO)",
-  "art_modern (master/STLMAP)",
   "Original ART"
+)
+software_colors <- c(
+  "wgsim" = "#1b9e77",
+  "DWGSIM" = "#1fd902",
+  "pIRS" = "#00caf7",
+  "art_modern (Intel)" = "#e7298a",
+  "art_modern (GCC)" = "#a61e47",
+  "Original ART" = "#e6ab02"
 )
 df_p <- df %>%
   dplyr::select(CPU_TIME, WALL_CLOCK, RSS, DATA, SOFTWARE, RLEN, SIZE) %>%
@@ -110,7 +108,7 @@ for (rlen in c("100", "300")) {
       limits = c(0.03, NA)
     ) +
     scale_fill_discrete("Read length") +
-    scale_color_discrete("Software") +
+    scale_color_manual("Software", values = software_colors) +
     facet_grid(ASPECTS ~ DATA, scales = "free_y") +
     theme_bw() +
     theme(

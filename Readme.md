@@ -31,8 +31,8 @@ The simulators were asked to generate a FASTQ on both datasets with paired-end r
 - **CPU** 13th Gen Intel(R) Core(TM) i7-13700H [spec](https://www.intel.com/content/www/us/en/products/sku/232128/intel-core-i713700h-processor-24m-cache-up-to-5-00-ghz/specifications.html)
 - **MEM** 2 * 16GB Hynix/Hyundai 5600MHz No-ECC (HMCG78AGBSA095N)
 - **SSD** WD_BLACK SN750 NVMe SSD (WDS200T3X0C-00SJG0)
-- **OS** Linux Mint 22
-- **KERNEL** Linux 6.8.0-86-generic
+- **OS** Linux Mint 22.2, based on Ubuntu 24.04 LTS.
+- **KERNEL** Linux 6.8.0-100-generic
 
 ## Used Third-Party Codes
 

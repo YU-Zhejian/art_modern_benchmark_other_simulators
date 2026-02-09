@@ -8,5 +8,5 @@ __pycache__/
 *tmp*
 *.dump
 !time-20260209.tsv
-!time-genome-transcriptome-20260209.tsv
+!time-size-20260209.tsv
 !time-speedup-20260209.tsv

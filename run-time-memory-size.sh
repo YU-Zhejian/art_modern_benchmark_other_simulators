@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2317
 # shellcheck disable=SC1091
-# set +ue
-# . /opt/intel/oneapi/setvars.sh
+set +ue
+. /opt/intel/oneapi/setvars.sh
 set -ue
 
 export OUT_DIR=/tmp/data_out
@@ -19,7 +19,7 @@ TRANSCRIPTOME_SIZES=("1024" "4096" "16384" "65536" "262144")
 TRANSCRIPT_LEN=1024
 
 mkdir -p "${OUT_DIR}"
-OUT_TSV="time-genome-transcriptome.tsv"
+OUT_TSV="time-size.tsv"
 
 function run() {
     echo "${1}" -- "${@:2}"
@@ -108,18 +108,18 @@ for i in {1..3}; do
                 --noALN \
                 --paired
 
-            # run art_modern-genome-pe"${RLEN}"-size"${GENOME_SIZE}" opt/art_modern_build/art_modern \
-            #     --mode wgs \
-            #     --lc pe \
-            #     --i-file data/gen_genome_"${GENOME_SIZE}"bp.fa \
-            #     --i-fcov "${WGS_FCOV}" \
-            #     --read_len "${RLEN}" \
-            #     --o-fastq "${OUT_DIR}"/gen_genome_"${GENOME_SIZE}"bp_art_modern_wgs_memory.fastq \
-            #     --qual_file_1 "${ART_MTX_PREFIX}"_R1.txt \
-            #     --qual_file_2 "${ART_MTX_PREFIX}"_R2.txt \
-            #     --pe_frag_dist_mean "${FRAG_DIST_MEAN}" \
-            #     --pe_frag_dist_std_dev "${FRAG_DIST_STD_DEV}" \
-            #     --parallel "${ART_MODERN_THREADS}"
+            run art_modern-genome-pe"${RLEN}"-size"${GENOME_SIZE}" opt/art_modern_build/art_modern \
+                --mode wgs \
+                --lc pe \
+                --i-file data/gen_genome_"${GENOME_SIZE}"bp.fa \
+                --i-fcov "${WGS_FCOV}" \
+                --read_len "${RLEN}" \
+                --o-fastq "${OUT_DIR}"/gen_genome_"${GENOME_SIZE}"bp_art_modern_wgs_memory.fastq \
+                --qual_file_1 "${ART_MTX_PREFIX}"_R1.txt \
+                --qual_file_2 "${ART_MTX_PREFIX}"_R2.txt \
+                --pe_frag_dist_mean "${FRAG_DIST_MEAN}" \
+                --pe_frag_dist_std_dev "${FRAG_DIST_STD_DEV}" \
+                --parallel "${ART_MODERN_THREADS}"
             run art_modern_gcc-genome-pe"${RLEN}"-size"${GENOME_SIZE}" opt/art_modern_gcc_build/art_modern \
                 --mode wgs \
                 --lc pe \
@@ -170,18 +170,18 @@ for i in {1..3}; do
                 --noALN \
                 --paired
 
-            # run art_modern-transcriptome-pe"${RLEN}"-size"${TRANSCRIPTOME_SIZE}" opt/art_modern_build/art_modern \
-            #     --mode trans --lc pe \
-            #     --i-file data/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp.fa \
-            #     --i-fcov "${TRANSCRIPTOME_FCOV}" \
-            #     --read_len "${RLEN}" \
-            #     --i-parser stream \
-            #     --o-fastq "${OUT_DIR}"/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp_art_modern_wgs_memory.fastq \
-            #     --qual_file_1 "${ART_MTX_PREFIX}"_R1.txt \
-            #     --qual_file_2 "${ART_MTX_PREFIX}"_R2.txt \
-            #     --pe_frag_dist_mean "${FRAG_DIST_MEAN}" \
-            #     --pe_frag_dist_std_dev "${FRAG_DIST_STD_DEV}" \
-            #     --parallel "${ART_MODERN_THREADS}"
+            run art_modern-transcriptome-pe"${RLEN}"-size"${TRANSCRIPTOME_SIZE}" opt/art_modern_build/art_modern \
+                --mode trans --lc pe \
+                --i-file data/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp.fa \
+                --i-fcov "${TRANSCRIPTOME_FCOV}" \
+                --read_len "${RLEN}" \
+                --i-parser stream \
+                --o-fastq "${OUT_DIR}"/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp_art_modern_wgs_memory.fastq \
+                --qual_file_1 "${ART_MTX_PREFIX}"_R1.txt \
+                --qual_file_2 "${ART_MTX_PREFIX}"_R2.txt \
+                --pe_frag_dist_mean "${FRAG_DIST_MEAN}" \
+                --pe_frag_dist_std_dev "${FRAG_DIST_STD_DEV}" \
+                --parallel "${ART_MODERN_THREADS}"
             run art_modern_gcc-transcriptome-pe"${RLEN}"-size"${TRANSCRIPTOME_SIZE}" opt/art_modern_gcc_build/art_modern  \
                 --mode trans --lc pe \
                 --i-file data/gen_transcriptome_"${TRANSCRIPTOME_SIZE}"bp.fa \
@@ -199,4 +199,4 @@ for i in {1..3}; do
 done
 rm -fr "${OUT_DIR}"
 
-Rscript plot_time_memory-genome-transcriptome.R
+Rscript plot_time_memory-size.R

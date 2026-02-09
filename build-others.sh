@@ -4,6 +4,7 @@
 # shellcheck disable=SC2046
 
 set -uex
+rm -rf opt/bin opt/lib opt/include opt/share
 
 if [ -n "${CFLAGS:-}" ]; then
     echo "CFLAGS is set to ${CFLAGS}"
@@ -21,7 +22,7 @@ else
     CXX=icpx
 fi
 if [ "${CXX}" = "icpx" ]; then
-set +ue
+set +uex
 . /opt/intel/oneapi/setvars.sh
 set -uex
 fi

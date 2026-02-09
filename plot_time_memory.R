@@ -26,7 +26,7 @@ replacement_list <- list(
   "dwgsim" = "DWGSIM",
   "wgsim" = "wgsim",
   "art_original" = "Original ART",
-  "art_modern" = "art_modern (master)",
+  "art_modern" = "art_modern (Intel)",
   "art_modern_prev_ver" = "art_modern (prev)",
   "art_modern_gcc" = "art_modern (GCC)",
   "art_modern_jemalloc" = "art_modern (master/jemalloc)",
@@ -38,7 +38,7 @@ software_levels <- c(
   "wgsim",
   "DWGSIM",
   "pIRS",
-  "art_modern (master)",
+  "art_modern (Intel)",
   "art_modern (prev)",
   "art_modern (GCC)",
   "art_modern (master/jemalloc)",
@@ -86,7 +86,7 @@ for (rlen in c("100", "300")) {
     ggplot() +
     geom_line(aes(
       y = VALUES_MEAN,
-      x = factor(COVERAGE, levels = c("1", "2", "4", "8", "16", "32")),
+      x = factor(COVERAGE, levels = c("1", "2", "4", "8", "16")),
       color = factor(
         SOFTWARE,
         levels = software_levels
@@ -97,7 +97,7 @@ for (rlen in c("100", "300")) {
       aes(
         ymin = VALUES_MEAN - VALUES_SD,
         ymax = VALUES_MEAN + VALUES_SD,
-        x = factor(COVERAGE, levels = c("1", "2", "4", "8", "16", "32")),
+        x = factor(COVERAGE, levels = c("1", "2", "4", "8", "16")),
         color = factor(
           SOFTWARE,
           levels = software_levels
