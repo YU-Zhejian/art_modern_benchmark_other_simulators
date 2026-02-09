@@ -1,10 +1,11 @@
-import random
+import numpy as np
 import sys
 
 
 if __name__ == '__main__':
-    rng = random.SystemRandom()
-    with open('genome.fa', 'w') as f:
-        f.write('>genome\n')
-        for i in range(int(sys.argv[1])):
-            f.write(rng.choice('ACTG') + '\n')
+    bit_gen = np.random.PCG64()
+    rng = np.random.Generator(bit_gen)
+    print('>genome')
+    for i in range(int(sys.argv[1]) // 1024):
+        print(''.join(rng.choice(['A', 'C', 'T', 'G'], size=1024)))
+

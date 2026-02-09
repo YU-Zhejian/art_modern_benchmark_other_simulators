@@ -28,6 +28,7 @@ fi
 
 
 # Build HTSLib
+env -C src/htslib-1.21 make distclean -j20 || true
 env -C src/htslib-1.21 \
     ./configure --prefix="$(pwd)"/opt \
     CC="${CC}" \
@@ -36,7 +37,7 @@ env -C src/htslib-1.21 make -j20
 env -C src/htslib-1.21 make -j20 install
 
 # Build GSL
-env -C src/gsl-2.8 make distclean || true
+env -C src/gsl-2.8 make distclean -j20 || true
 env -C src/gsl-2.8 \
     ./configure --prefix="$(pwd)"/opt \
     --enable-shared=yes \
