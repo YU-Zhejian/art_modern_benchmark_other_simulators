@@ -127,7 +127,6 @@ for i in {1..3}; do
                 --i-file data/hg38_long_mrna.fa \
                 --i-fcov "${TRANSCRIPTOME_FCOV}" \
                 --read_len "${RLEN}" \
-                --i-parser stream \
                 --o-fastq "${OUT_DIR}"/hg38_long_mrna_art_modern_wgs_memory.fastq \
                 --qual_file_1 "${ART_MTX_PREFIX}"_R1.txt \
                 --qual_file_2 "${ART_MTX_PREFIX}"_R2.txt \
@@ -139,7 +138,6 @@ for i in {1..3}; do
                 --i-file data/hg38_long_mrna.fa \
                 --i-fcov "${TRANSCRIPTOME_FCOV}" \
                 --read_len "${RLEN}" \
-                --i-parser stream \
                 --o-fastq "${OUT_DIR}"/hg38_long_mrna_art_modern_wgs_memory.fastq \
                 --qual_file_1 "${ART_MTX_PREFIX}"_R1.txt \
                 --qual_file_2 "${ART_MTX_PREFIX}"_R2.txt \

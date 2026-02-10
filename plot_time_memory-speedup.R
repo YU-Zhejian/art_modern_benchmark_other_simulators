@@ -14,39 +14,7 @@ df <- readr::read_tsv("time-speedup.tsv") %>%
     NTHREADS = stringr::str_extract(TEST_CASE, "nthreads([0-9]+)", group = 1)
   )
 
-replacement_list <- list(
-  "CPU_TIME" = "CPU Time (s)",
-  "WALL_CLOCK" = "Clock Time (s)",
-  "RSS" = "Residential Memory (MB)",
-  "MAJ_PG_F" = "Major Page Faults",
-  "MIN_PG_F" = "Minor Page Faults",
-  "VOL_CTX_S" = "Voluntary Context Switches",
-  "IV_CTX_S" = "Involuntary Context Switches",
-  "pirs" = "pIRS",
-  "dwgsim" = "DWGSIM",
-  "wgsim" = "wgsim",
-  "art_original" = "Original ART",
-  "art_modern" = "art_modern (Intel)",
-  "art_modern_prev_ver" = "art_modern (prev)",
-  "art_modern_gcc" = "art_modern (GCC)",
-  "art_modern_jemalloc" = "art_modern (master/jemalloc)",
-  "art_modern_asio" = "art_modern (master/ASIO)",
-  "art_modern_stlmap" = "art_modern (master/STLMAP)",
-  "art_modern_mimalloc" = "art_modern (master/mi-malloc)"
-)
-software_levels <- c(
-  "wgsim",
-  "DWGSIM",
-  "pIRS",
-  "art_modern (Intel)",
-  "art_modern (prev)",
-  "art_modern (GCC)",
-  "art_modern (master/jemalloc)",
-  "art_modern (master/mi-malloc)",
-  "art_modern (master/ASIO)",
-  "art_modern (master/STLMAP)",
-  "Original ART"
-)
+source("plot_legends.R")
 df_p <- df %>%
   dplyr::select(CPU_TIME, WALL_CLOCK, RSS, DATA, SOFTWARE, RLEN, NTHREADS) %>%
   dplyr::mutate(RSS = RSS / 1024) %>%
@@ -97,19 +65,26 @@ for (rlen in c("100", "300")) {
       "# parallel threads"
     ) +
     scale_y_continuous(
-      "Values",
+      "",
       trans = "log10",
       labels = scales::label_number(),
-      # breaks = scales::breaks_pretty(n = 5),
-      limits = c(1, NA)
+      limits = c(1, NA),
+      breaks = scales::breaks_log(n = 7),
+      expand = expansion(mult = c(0.05, 0.2))
     ) +
     scale_fill_discrete("Read length") +
-    scale_color_discrete("Software") +
+    scale_color_manual("Software", values = software_colors) +
     facet_grid(ASPECTS ~ DATA, scales = "free_y") +
     theme_bw() +
     theme(
+      axis.text=element_text(size=14),
+      axis.title=element_text(size=16),
+      legend.text=element_text(size=14),
+      legend.title=element_text(size=16),
       panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank()
+      panel.grid.minor = element_blank(),
+      strip.background = element_blank(), 
+      strip.text=element_text(color="black", size=16)
     )
   ggsave(paste0("fig/time_memory-speedup_", rlen, ".pdf"), p, width = 10, height = 10)
 }

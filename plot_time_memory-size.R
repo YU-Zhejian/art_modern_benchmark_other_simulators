@@ -1,6 +1,15 @@
 library(ggplot2)
 library(dplyr)
 
+size_replace_list <- list(
+  "1048576" = "1M",
+  "4194304" = "4M",
+  "16777216" = "16M",
+  "67108864" = "64M",
+  "268435456" = "256M"
+)
+size_order <- c("1M", "4M", "16M", "64M", "256M")
+
 df <- readr::read_tsv("time-size.tsv") %>%
   dplyr::mutate(CPU_TIME = SYSTEM + USER) %>%
   dplyr::mutate(
@@ -11,44 +20,19 @@ df <- readr::read_tsv("time-size.tsv") %>%
     ),
     SOFTWARE = stringr::str_extract(TEST_CASE, "^[^-]+"),
     RLEN = ifelse(stringr::str_count(TEST_CASE, "300") != 0, "300", "100"),
-    SIZE = as.numeric(stringr::str_extract(TEST_CASE, "size([0-9]+)", group = 1))
+    SIZE = as.numeric(stringr::str_extract(
+      TEST_CASE,
+      "size([0-9]+)",
+      group = 1
+    ))
   ) %>%
   dplyr::mutate(
-    SIZE = SIZE * ifelse (DATA == "GENOME", 1, 1024)
+    SIZE = as.character(SIZE * ifelse(DATA == "GENOME", 1, 1024))
   )
+print(unique(df$SIZE))
 
+source("plot_legends.R")
 
-replacement_list <- list(
-  "CPU_TIME" = "CPU Time (s)",
-  "WALL_CLOCK" = "Clock Time (s)",
-  "RSS" = "Residential Memory (MB)",
-  "MAJ_PG_F" = "Major Page Faults",
-  "MIN_PG_F" = "Minor Page Faults",
-  "VOL_CTX_S" = "Voluntary Context Switches",
-  "IV_CTX_S" = "Involuntary Context Switches",
-  "pirs" = "pIRS",
-  "dwgsim" = "DWGSIM",
-  "wgsim" = "wgsim",
-  "art_original" = "Original ART",
-  "art_modern" = "art_modern (Intel)",
-  "art_modern_gcc" = "art_modern (GCC)"
-)
-software_levels <- c(
-  "wgsim",
-  "DWGSIM",
-  "pIRS",
-  "art_modern (Intel)",
-  "art_modern (GCC)",
-  "Original ART"
-)
-software_colors <- c(
-  "wgsim" = "#1b9e77",
-  "DWGSIM" = "#1fd902",
-  "pIRS" = "#00caf7",
-  "art_modern (Intel)" = "#e7298a",
-  "art_modern (GCC)" = "#a61e47",
-  "Original ART" = "#e6ab02"
-)
 df_p <- df %>%
   dplyr::select(CPU_TIME, WALL_CLOCK, RSS, DATA, SOFTWARE, RLEN, SIZE) %>%
   dplyr::mutate(RSS = RSS / 1024) %>%
@@ -63,6 +47,9 @@ df_p <- df %>%
     }),
     SOFTWARE = sapply(SOFTWARE, function(x) {
       replacement_list[[x]]
+    }),
+    SIZE = sapply(SIZE, function(x) {
+      size_replace_list[[x]]
     })
   ) %>%
   dplyr::group_by(ASPECTS, DATA, SOFTWARE, SIZE, RLEN) %>%
@@ -75,7 +62,7 @@ for (rlen in c("100", "300")) {
     ggplot() +
     geom_line(aes(
       y = VALUES_MEAN,
-      x = SIZE,
+      x = factor(SIZE, levels = size_order),
       color = factor(
         SOFTWARE,
         levels = software_levels
@@ -86,7 +73,7 @@ for (rlen in c("100", "300")) {
       aes(
         ymin = VALUES_MEAN - VALUES_SD,
         ymax = VALUES_MEAN + VALUES_SD,
-        x = SIZE,
+        x = factor(SIZE, levels = size_order),
         color = factor(
           SOFTWARE,
           levels = software_levels
@@ -95,27 +82,37 @@ for (rlen in c("100", "300")) {
       ),
       width = .2
     ) +
-    scale_x_continuous(
+    scale_x_discrete(
       "# bases in the genome/transcriptome",
-      trans = "log10",
-      labels = scales::label_number(scale_cut = scales::cut_si("")),
     ) +
     scale_y_continuous(
-      "Values",
+      "",
       trans = "log10",
       labels = scales::label_number(),
-      # breaks = scales::breaks_pretty(n = 5),
-      limits = c(0.03, NA)
+      limits = c(0.03, NA),
+      expand = expansion(mult = c(0.05, 0.1))
     ) +
     scale_fill_discrete("Read length") +
     scale_color_manual("Software", values = software_colors) +
     facet_grid(ASPECTS ~ DATA, scales = "free_y") +
     theme_bw() +
     theme(
+      axis.text = element_text(size = 14),
+      axis.title = element_text(size = 16),
+      legend.text = element_text(size = 14),
+      legend.title = element_text(size = 16),
       panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank()
+      panel.grid.minor = element_blank(),
+      strip.background = element_blank(),
+      strip.text = element_text(color = "black", size = 16)
     )
-  ggsave(paste0("fig/time_memory-size_", rlen, ".pdf"), p, width = 10, height = 10)
+
+  ggsave(
+    paste0("fig/time_memory-size_", rlen, ".pdf"),
+    p,
+    width = 10,
+    height = 10
+  )
 }
 
 sessionInfo()
