@@ -1,7 +1,7 @@
 library(ggplot2)
 library(dplyr)
 
-df <- readr::read_tsv("time.tsv") %>%
+df <- readr::read_tsv("time-20260209.tsv") %>%
   dplyr::mutate(CPU_TIME = SYSTEM + USER) %>%
   dplyr::mutate(
     DATA = ifelse(
@@ -47,6 +47,20 @@ df_speedup <- df_p %>%
   dplyr::ungroup()
 
 print(summary(df_speedup$SPEEDUP))
+
+df_reduc <- df_p %>%
+    dplyr::filter(SOFTWARE == "art_modern (Intel)" | SOFTWARE == "Original ART") %>%
+    dplyr::filter(ASPECTS == "CPU Time (s)") %>%
+    dplyr::select(-VALUES_SD, -ASPECTS) %>%
+    dplyr::group_by(DATA, SOFTWARE, COVERAGE, RLEN) %>%
+    tidyr::pivot_wider(
+        names_from = SOFTWARE,
+        values_from = VALUES_MEAN
+    ) %>%
+    dplyr::mutate(REDUCTION = 1 - `art_modern (Intel)` / `Original ART`) %>%
+    dplyr::ungroup()
+
+print(summary(df_reduc$REDUCTION))
 
 for (rlen in c("100", "300")) {
   p <- df_p %>%
